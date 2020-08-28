@@ -35,7 +35,8 @@
 #define BUF_SIZE (PERIOD_SIZE * 2)
 
 static int interrupted;
-static char uuid_value[37];
+char uuid_value[256];
+char filename[1024];
 static int volume;
 
 /* one of these created for each message */
@@ -113,12 +114,10 @@ thread_spam(void *d)
 
     //system("play -q /root/greeter.wav");
     FILE *fhandle;
-    char filename[1024];
     int64_t length, result;
     struct stat buffer;
     int remainder, chunk_size;
 
-    strcpy(filename, "audio1.wav");
     if (stat(filename, &buffer) != 0)
     {
         lwsl_user("file not found");
@@ -180,7 +179,7 @@ thread_spam(void *d)
                     lws_snprintf((char *)amsg.payload + LWS_PRE, len,
                                  "{\"bk_telkom\":{\"type\":\"authDevice\",\"stan\":\"%s\","
                                  "\"timestamp\":%0.0f,\"code\":0,\"version\":\"1.0\",\"data\":"
-                                 "{\"device_id\":\"%s\"}}}",
+                                 "{\"uid\":\"%s\"}}}",
                                  stan,
                                  time_in_mill, uuid_value);
                 vhd->status = SS_WAIT;
@@ -194,7 +193,7 @@ thread_spam(void *d)
                     lws_snprintf((char *)amsg.payload + LWS_PRE, len,
                                  "{\"bk_telkom\":{\"type\":\"audioConn\",\"stan\":\"%s\","
                                  "\"timestamp\":%0.0f,\"code\":0,\"version\":\"1.0\",\"data\":"
-                                 "{\"device_id\":\"%s\"}}}",
+                                 "{\"uid\":\"%s\"}}}",
                                  stan,
                                  time_in_mill, uuid_value);
                 vhd->status = SS_WAIT;
@@ -233,7 +232,7 @@ thread_spam(void *d)
                     lws_snprintf((char *)amsg.payload + LWS_PRE, len + n,
                                  "{\"bk_telkom\":{\"type\":\"audioStream\",\"stan\":\"%s\","
                                  "\"timestamp\":%0.0f,\"code\":0,\"version\":\"1.0\",\"data\":"
-                                 "{\"device_id\":\"%s\",\"audio\":\"%s\"}}}",
+                                 "{\"uid\":\"%s\",\"audio\":\"%s\"}}}",
                                  stan, time_in_mill, uuid_value, bs64_audio);
             }
 
@@ -294,7 +293,7 @@ static int connect_client(struct per_vhost_data__minimal *vhd)
     //vhd->i.port = 1080;
     //vhd->i.port = 31909;
     //vhd->i.address = "api.bahasakita.co.id";
-    vhd->i.address = "202.83.120.122";
+    vhd->i.address = "localhost";
     //vhd->i.address = "10.226.174.160";
     //vhd->i.address = "indira.s.1elf.net";
     //vhd->i.address = "smartspeaker-gateway.vsan-apps.playcourt.id";
@@ -501,6 +500,13 @@ static int callback_minimal_broker(struct lws *wsi,
                     lwsl_user("End of stream\n");
 
                     vhd->finished = 1;
+					
+                    lws_set_timeout(wsi, PENDING_TIMEOUT_CLOSE_SEND,
+					LWS_TO_KILL_ASYNC);
+                    //lws_set_timeout(wsi, NO_PENDING_TIMEOUT, 0);
+				    lws_close_reason(wsi, LWS_CLOSE_STATUS_NORMAL, "bye", 0);
+
+
                 }
             }
             //lwsl_user("Finished \n");
@@ -542,7 +548,7 @@ int main(int argc, const char **argv)
         /* | LLL_EXT */ /* | LLL_CLIENT */  /* | LLL_LATENCY */
         /* | LLL_DEBUG */;
 
-    int ret;
+    /*  int ret;
     FILE *fp;
 
     volume = 50;
@@ -566,6 +572,7 @@ int main(int argc, const char **argv)
     lwsl_user("Name ID : %s\n", uuid_value);
     fclose(fp);
     unlink("/tmp/.uuid_machine");
+    */
 
     signal(SIGINT, sigint_handler);
 
@@ -573,6 +580,24 @@ int main(int argc, const char **argv)
         logs = atoi(p);
 
     lws_set_log_level(logs, NULL);
+    
+    if ((p = lws_cmdline_option(argc, argv, "-f"))){
+        printf("filename : %s %d \n",p, strlen(p));
+        strcpy(filename,p);
+        filename[strlen(p)]='\0';
+    }
+
+
+    printf("filename : %s %d \n",filename, strlen(filename));
+    strcpy(uuid_value,"ec50cf6218ddf2c1c2b5086451c4f6d550eff5e0c44f61dddf5a749f886257b9");
+    
+
+    
+    if( strlen(filename) <= 0 ) {
+         lwsl_err("please input filename");  
+         return -1;
+    }
+    
 
     lwsl_user("LWS minimal ws client tx\n");
     lwsl_user("Run minimal-ws-broker and browse to that\n");
