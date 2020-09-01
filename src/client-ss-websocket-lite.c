@@ -206,7 +206,7 @@ thread_spam(void *d)
                 {
                     chunk_size = remainder;
                 }
-                usleep(100000);
+                usleep(50000); // 50 milisecond
                 if ((result = fread(buf, 1, chunk_size, fhandle)) > 0)
                 {
                     lwsl_user("result audio : %d \n", result);
@@ -494,7 +494,7 @@ static int callback_minimal_broker(struct lws *wsi,
                 struct json_objcet *endpoint = json_object_object_get(data,
                                                                       "endpoint");
 
-                if (json_object_get_boolean(endpoint))
+                if (!json_object_get_boolean(endpoint))
                 {
                     //printf("End of stream\n");
                     lwsl_user("End of stream\n");
