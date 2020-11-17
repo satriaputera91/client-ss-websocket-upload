@@ -594,7 +594,7 @@ int main(int argc, const char **argv)
 
     
     if( strlen(filename) <= 0 ) {
-         lwsl_err("please input filename");  
+         lwsl_err("please input filename\n");  
          return -1;
     }
     
