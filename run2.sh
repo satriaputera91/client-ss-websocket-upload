@@ -1,5 +1,14 @@
 #!/bin/bash
-echo "Please, input your option"
+echo "Please, input your option:"
+echo "0) See you again!\n
+      1)  aturvolumetv.wav\n
+      2)  lagumajutakgentar.wav\n
+      3)  suratalbaqarah.wav\n
+      4)  setalarm.wav\n
+      5)  lampukamar.wav\n
+      *)  Sorry, I don't understand\n"
+echo "input :"
+
 init=""
 read INPUT_STRING
     case $INPUT_STRING in

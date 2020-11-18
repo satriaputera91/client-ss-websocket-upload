@@ -589,7 +589,7 @@ int main(int argc, const char **argv)
 
 
     printf("filename : %s %d \n",filename, strlen(filename));
-    strcpy(uuid_value,"ec50cf6218ddf2c1c2b5086451c4f6d550eff5e0c44f61dddf5a749f886257b9");
+    strcpy(uuid_value,"70467758cfa83cc8427347a368fc6a028ec604414e40ed5f39132eb73937f108");
     
 
     
